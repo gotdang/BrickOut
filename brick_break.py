@@ -112,6 +112,8 @@ def run_game():
             if is_quit(event):
                 running = False
                 break
+            if event.type == pygame.MOUSEMOTION:
+                paddle_sprite.move(event.pos[0])
             if event.type == pygame.KEYUP:
                 match event.key:
                     case pygame.K_b:
