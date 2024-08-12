@@ -13,6 +13,13 @@ class PaddleSprite(GameSprite):
         if keys[pygame.K_RIGHT]:
             self.moveRight(10)
 
+    def move(self, new_x: int):
+        self.rect.x = new_x - self.width // 2
+        if self.rect.x + self.width > RIGHT_MARGIN:
+            self.rect.x = RIGHT_MARGIN - self.width
+        if self.rect.x <= LEFT_MARGIN:
+            self.rect.x = 1 + LEFT_MARGIN
+
     def moveRight(self, pixels):
         self.rect.x += pixels
         if self.rect.x + self.width > RIGHT_MARGIN:
