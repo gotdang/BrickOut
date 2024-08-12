@@ -1,5 +1,5 @@
 import pygame
-from constants import SCREEN_HEIGHT, LEFT_MARGIN, RIGHT_MARGIN, BRICK_HEIGHT, BRICK_LAYER_COUNT, ABOVE_BRICKS, DEMO
+from constants import SCREEN_HEIGHT, LEFT_MARGIN, RIGHT_MARGIN, BRICK_HEIGHT, BRICK_LAYER_COUNT, ABOVE_BRICKS
 from game_sprite import GameSprite
 from random import choice
 from signum import signum
@@ -94,21 +94,22 @@ class BallSprite(GameSprite):
         self.rect.x += self.dx
         self.rect.y += self.dy
         # Check for paddle collision.
-        hit_paddle = not DEMO and pygame.sprite.collide_rect(self.paddle_sprite, self)
+        hit_paddle = not self.glob.demo_mode and pygame.sprite.collide_rect(self.paddle_sprite, self)
         if hit_paddle:
             self.paddle_bounce(hit_paddle)
             return
         # Check for brick collision.
-        hit_brick = pygame.sprite.spritecollide(
-            self, self.brick_sprites, True
-        )
-        if hit_brick:  # Use elif because can't collide with both paddle and brick at the same time.
+        hit_brick = pygame.sprite.spritecollide(self, self.brick_sprites, True)
+        if hit_brick:
             self.brick_bounce(hit_brick)
+            return
+        if len(self.brick_sprites) == 0:
+            self.glob.demo_mode = True
             return
 
         # Normal bouncing off walls.
         # If the ball hits the bottom, the turn is over.
-        if self.rect.y + self.radius > SCREEN_HEIGHT and not DEMO:
+        if self.rect.y + self.radius > SCREEN_HEIGHT and not self.glob.demo_mode:
             sounds.bottom_sound.play()
             self.glob.pause = "bottom"
             return
@@ -116,7 +117,7 @@ class BallSprite(GameSprite):
         if not (self.rect.x + self.radius > RIGHT_MARGIN
             or self.rect.x <= LEFT_MARGIN
             or self.rect.y < 0
-            or self.rect.y + self.radius > SCREEN_HEIGHT and DEMO
+            or self.rect.y + self.radius > SCREEN_HEIGHT and self.glob.demo_mode
         ):
             return
         # Otherwise, make a sound and bounce off the wall.
@@ -127,7 +128,7 @@ class BallSprite(GameSprite):
             if self.rect.x <= LEFT_MARGIN:
                 self.rect.x = LEFT_MARGIN + 1
             self.dx = -self.dx
-        if self.rect.y < 0 or (DEMO and self.rect.y + self.radius > SCREEN_HEIGHT):
+        if self.rect.y < 0 or (self.glob.demo_mode and self.rect.y + self.radius > SCREEN_HEIGHT):
             self.rect.y -= self.dy
             self.dy = -self.dy
 

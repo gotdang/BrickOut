@@ -14,8 +14,7 @@ from constants import (
     , LEFT_MARGIN, RIGHT_MARGIN, MARGIN_COLOR
     , BRICKS_X_COUNT, BRICK_LAYER_COUNT
     , BELOW_PADDLE
-    , BALL_RADIUS
-    , DEMO)
+    , BALL_RADIUS)
 from dataclasses import dataclass
 
 
@@ -55,10 +54,12 @@ brick_sprites = pygame.sprite.Group(brick_list)
 
 @dataclass
 class Glob():
+    demo_mode: bool
     game_speed: int
     pause: str
     score: Score
     def __init__(self):
+        self.demo_mode = True
         self.game_speed = 10
         self.pause = ""
         self.score = Score()
@@ -88,7 +89,7 @@ def redraw(screen):
     score_surface, score_rect = score_font.render(f"{glob.score}", named_colors["white"])
     screen.blit(score_surface, (RIGHT_MARGIN - score_rect.width - 10, 10))
     # Indicate if in demo mode.
-    if DEMO:
+    if glob.demo_mode:
         demo_surface, demo_rect = score_font.render("DEMO", named_colors["white"])
         screen.blit(demo_surface, (LEFT_MARGIN + 10, 10))
     else:
@@ -99,6 +100,7 @@ def redraw(screen):
 
 def run_game():
     running = True
+    glob.demo_mode = False
     glob.pause = ""  # Pause the game when the ball hits bottom.
     glob.game_speed = 10
     clock = pygame.time.Clock()
@@ -118,11 +120,13 @@ def run_game():
                 match event.key:
                     case pygame.K_b:
                         change_bg_image()
+                    case pygame.K_d:
+                        glob.demo_mode = not glob.demo_mode
+                    case pygame.K_f:
+                        glob.game_speed += 10
                     case pygame.K_p:
                         glob.pause = not glob.pause
                         print("Pause:", glob.pause)
-                    case pygame.K_f:
-                        glob.game_speed += 10
                     case pygame.K_s:
                         glob.game_speed -= 10
                         if glob.game_speed < 1:
